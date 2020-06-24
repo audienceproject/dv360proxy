@@ -1,0 +1,23 @@
+{
+  "name": "apdv360proxy",
+  "version": "1.0.0",
+  "description": "Allows external companies to access DV360 reports without getting access and with granular control of advertisers and fields allowed to access",
+  "main": "app.js",
+  "author": "Roman Gomolko",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.703.0",
+    "axios": "^0.19.2",
+    "lodash": "^4.17.15",
+    "querystring": "^0.2.0",
+    "readline-sync": "^1.4.10",
+    "retry-axios": "^2.2.1"
+  },
+  "scripts": {
+    "test": "mocha tests/unit/"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "operation": "createQuery",
+  "arguments": {
+    "query": {
+      "kind": "doubleclickbidmanager#query",
+      "metadata": {
+        "title": "Test",
+        "dataRange": "CURRENT_DAY",
+        "format": "CSV",
+        "locale": "en"
+      },
+      "params": {
+        "type": "TYPE_GENERAL",
+        "groupBys": [
+          "FILTER_ADVERTISER",
+          "FILTER_LINE_ITEM"
+        ],
+        "filters": [{
+          "type": "FILTER_ADVERTISER",
+          "value": "3482931"
+        }],
+        "metrics": [
+          "METRIC_IMPRESSIONS"
+        ]
+      },
+      "schedule": {
+        "frequency": "ONE_TIME"
+      },
+      "timezoneCode": "UTC"
+    }
+  }
+
+}

@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  DV360 API proxy
+  
+
+Resources:
+  DV360ConnectorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dv360proxy/
+      Handler: app.lambdaHandler
+      Runtime: nodejs12.x
+      Timeout: 300
+      Environment:
+        Variables:
+          GOOGLE_CLIENT_ID:
+          GOOGLE_CLIENT_SECRET: 
+          GOOGLE_REFRESH_TOKEN:
+
+      
+
+Outputs:
+  DV360ConnectorFunction:
+    Description: "DV360 Proxy Lambda Function ARN"
+    Value: !GetAtt DV360ConnectorFunction.Arn
