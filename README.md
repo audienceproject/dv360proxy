@@ -9,7 +9,7 @@ It solves three tasks:
 Except of this is acts as a proxy, with no modification of requests and responses.
 
 
-# Overview
+## Overview
 
 Solution exposes Lambda function, that needs to be invoked directly. No API Gateway needed.
 
@@ -35,7 +35,7 @@ Request object structure is following:
 
 `operationArguments` are different for different operations
 
-| Operation     | Arguments           | 
+| Operation     | Arguments           |
 | ------------- |-------------|
 | `getQueries`      |  |
 | `getQuery`      | `{ queryId }`      |
@@ -81,18 +81,39 @@ Example:
 }
 ```
 
-# Configuration
+
+## Configuration
 
 In order to access API you need to create Google Cloud Application and configure solution with `clientId`, `clientSecret` obtained in Google Cloud Console and `refreshToken` obtained using Google OAuth API. These values needs to be exposed through  `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN` env variables. Also `dv360proxy/config.js` contains list of advertisers allowed to access as well as blacklisted metrics for each.
 
-# Deploymnet
 
-Lambda function can be deployed using AWS SAM using the following commands
+## Deploymnet
+
+### SAM
+
+Lambda function can be deployed using AWS SAM with the following commands
 
 ```
 sam build
 sam deploy
 ```
+
+### Terraform
+
+Or using terraform
+
+```
+terraform plan --var invocation_account_ids=[318524154126,341784786689]
+terraform apply --var invocation_account_ids=[318524154126,341784786689]
+```
+
+#### Template settings
+
+- `aws_region`              - AWS Region used to deploy lambda. Default - `us-east-1`
+- `invocation_account_ids`  - list of AWS Accounts allowed to invoke lambda
+- `ssm_parameter_name`      - name of SSM Parameter wioth access settings. Default - `dv360proxy`
+
+### Manual deployment
 
 Also it possible to pack the function manually and upload to AWS console. Following env variables need to be set:
 
