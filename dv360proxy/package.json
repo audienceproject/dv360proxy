@@ -8,7 +8,7 @@
   "dependencies": {
     "aws-sdk": "^2.703.0",
     "axios": "^0.19.2",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "querystring": "^0.2.0",
     "readline-sync": "^1.4.10",
     "retry-axios": "^2.2.1"
