@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+    <title>DV360 configurator</title>
+</head>
+
+<body>
+    <div data-bind="template: 'master'" class="container vh-100">
+        Loading...
+    </div>
+
+    <script type="text/html" id="partner">
+
+    </script>
+
+    <script type="text/html" id="master">
+        <header>
+            <h1>DV360 proxy configurator</h1>
+            <div class="alert alert-dark" role="alert">
+                <p>This page allow to generate configuration object for DV360 proxy. This page <strong>is not
+                        synchronized</strong> with
+                    SSM parameter. You can paste current configuration to the right field. Once you done with editing,
+                    you need to update SSM parameter manually using AWS CLI or AWS Console by following <a
+                        href="https://github.com/audienceproject/dv360proxy#configuration">the guide</a>
+                </p>
+                <p>List of available metrics for blacklist can be found at <a
+                        href="https://developers.google.com/bid-manager/v1.1/filters-metrics">https://developers.google.com/bid-manager/v1.1/filters-metrics</a>
+                </p>
+            </div>
+        </header>
+        <section style="width: 48%; float: left;" data-bind="with: config">
+            <div data-bind="foreach: partners">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <label class="label">Partner ID <input type="number" data-bind="textInput: id"
+                                class="form-control" /></label>
+
+                        <button type="button" class="btn btn-danger float-right btn-sm"
+                            data-bind="click: $parent.deletePartner">x</button>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Advertiser ID</th>
+                                    <th><abbr data-toggle="tooltip" title="Denies access to the cost data">Deny
+                                            cost</abbr></th>
+                                    <th><abbr data-toggle="tooltip" title="Additional blacklisted metrics">Additional
+                                            blacklist</abbr>
+                                    </th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: advertisers">
+                                <tr>
+                                    <td>
+                                        <input type="number" data-bind="textInput: id"
+                                            class="form-control form-control-sm" size="8" />
+                                    </td>
+                                    <td>
+                                        <div class="form-check">
+                                            <input type="checkbox" data-bind="checked: costsMetricsDenied" />
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center">
+                                        <input type="text" class="form-control form-control-sm"
+                                            data-bind="textInput: blacklistCSV" />
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-sm"
+                                            data-bind="click: $parent.removeAdvertiser">x</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4">
+                                        <button type="button" class="btn btn-success btn-sm"
+                                            data-bind="click: addNewAdvertiser">Add advertiser</button>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-success" data-bind="click: addNewPartner">Add partner</button>
+
+        </section>
+        <section style="width: 48%; float: right;">
+            <textarea class="form-control mb-3" style="width: 100%; min-height: 600px; font-family: monospace;"
+                data-bind="textInput: json"></textarea>
+            <a class="btn btn-success" download="config.json" data-bind="attr: { href: 'data:text/json;charset=utf-8,' + encodeURIComponent(json()) }">Download</a>
+                
+        </section>
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js">
+    </script>
+
+    <script>
+        function AdvertiserViewModel(advertiser) {
+            var self = this;
+            if (!advertiser) {
+                advertiser = {
+                    id: null,
+                    blacklistMetrics: ["_FEE_", "_COST_"]
+                }
+            }
+            self.id = ko.observable(advertiser.id);
+            self.blacklistMetrics = ko.observableArray(advertiser.blacklistMetrics);
+
+            self.costsMetricsDenied = ko.computed({
+                read: function () {
+                    return self.blacklistMetrics.indexOf("_FEE_") > -1 && self.blacklistMetrics.indexOf(
+                        "_COST_") > -1;
+                },
+                write: function (value) {
+                    if (value) {
+                        if (self.blacklistMetrics.indexOf("_FEE_") === -1) {
+                            self.blacklistMetrics.push("_FEE_");
+                        }
+                        if (self.blacklistMetrics.indexOf("_COST_") === -1) {
+                            self.blacklistMetrics.push("_COST_");
+                        }
+                    } else {
+                        self.blacklistMetrics.removeAll(["_FEE_", "_COST_"]);
+                    }
+                }
+            });
+
+            self.blacklistCSV = ko.computed({
+                read: function () {
+                    var blacklist = self.blacklistMetrics();
+
+                    // If cost metrics are denied, not need to show them in additional blacklist fields
+                    if (self.costsMetricsDenied()) {
+                        blacklist = blacklist.filter(function (f) {
+                            return f !== "_FEE_" && f !== "_COST_";
+                        })
+                    }
+
+                    return blacklist.join(', ');
+                },
+                write: function (value) {
+                    if (!value) {
+                        value = "";
+                    }
+                    var blacklist = value.split('/').map(function (f) {
+                        return f.trim();
+                    });
+
+                    if (self.costsMetricsDenied()) {
+                        blacklist.push("_FEE_");
+                        blacklist.push("_COST_");
+                    }
+                    self.blacklistMetrics(blacklist);
+                }
+            })
+        }
+
+        AdvertiserViewModel.prototype.toJSON = function () {
+            var copy = ko.toJS(this);
+            delete copy.costsMetricsDenied;
+            delete copy.blacklistCSV;
+            return copy;
+        };
+
+        function PartnerViewModel(partner) {
+            var self = this;
+            if (!partner) {
+                partner = {
+                    id: null,
+                    advertisers: [null]
+                }
+            }
+            self.id = ko.observable(partner.id);
+            self.advertisers = ko.observableArray(partner.advertisers.map(function (advertiser) {
+                return new AdvertiserViewModel(advertiser)
+            }));
+
+            self.addNewAdvertiser = function () {
+                self.advertisers.push(new AdvertiserViewModel())
+            }
+
+            self.removeAdvertiser = function (advertiser) {
+                self.advertisers.remove(advertiser);
+            }
+        }
+
+        function ConfigViewModel(config) {
+            var self = this;
+            self.partners = ko.observableArray(config.partners.map(function (partner) {
+                return new PartnerViewModel(partner)
+            }));
+
+            self.addNewPartner = function () {
+                self.partners.push(new PartnerViewModel());
+            }
+
+            self.deletePartner = function (partner) {
+                self.partners.remove(partner);
+            }
+        }
+
+        var RootViewModel = function (initialConfiguration) {
+            initialConfiguration = initialConfiguration || {
+                partners: [null]
+            };
+            var self = this;
+
+            self.config = ko.observable(new ConfigViewModel(initialConfiguration));
+
+            self.json = ko.computed({
+                read: function () {
+                    return ko.toJSON(self.config, null, 2);
+                },
+                write: function (value) {
+                    try {
+                        var config = JSON.parse(value);
+                        console.log("Processed input", config);
+                        self.config(new ConfigViewModel(config));
+                    } catch (err) {
+                        console.log("Malformed JSON", value, err)
+                    }
+                }
+            });
+
+            self.json.subscribe(function (json) {
+                localStorage.setItem("dv360proxy.config", json);
+            });
+        };
+
+        var config = null;
+        var lastConig = localStorage.getItem("dv360proxy.config");
+        if (lastConig) {
+            try {
+                var config = JSON.parse(lastConig);
+            } catch (err) {
+
+            }
+        }
+        ko.applyBindings(new RootViewModel(config));
+    </script>
+
+</body>
+
+</html>
