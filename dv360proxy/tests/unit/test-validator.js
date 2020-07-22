@@ -39,10 +39,20 @@ describe('Valitator', async function () {
     };
 
     const config = {
-      advertisers: [{
-        "id": "1",
-        "blacklistMetrics": ["_COST_"]
-      }]
+      "partners": [{
+          "id": "1",
+          "advertisers": [{
+            "id": "2"
+          }]
+        },
+        {
+          "id": "2",
+          "advertisers": [{
+            "id": "1",
+            "blacklistMetrics": ["_COST_"]
+          }]
+        }
+      ]
     };
 
     const result = await validator(config, request);
@@ -87,10 +97,20 @@ describe('Valitator', async function () {
     };
 
     const config = {
-      advertisers: [{
-        "id": "1",
-        "blacklistMetrics": ["_COST_"]
-      }]
+      "partners": [{
+          "id": "1",
+          "advertisers": [{
+            "id": "2"
+          }]
+        },
+        {
+          "id": "2",
+          "advertisers": [{
+            "id": "1",
+            "blacklistMetrics": ["_COST_"]
+          }]
+        }
+      ]
     };
 
     const result = await validator(config, request);
@@ -122,7 +142,7 @@ describe('Valitator', async function () {
               },
               {
                 "type": "FILTER_ADVERTISER",
-                "value": "2"
+                "value": "3"
               }
             ],
             "metrics": [
@@ -138,10 +158,20 @@ describe('Valitator', async function () {
     };
 
     const config = {
-      advertisers: [{
-        "id": "1",
-        "blacklistMetrics": ["_COST_"]
-      }]
+      "partners": [{
+          "id": "1",
+          "advertisers": [{
+            "id": "2"
+          }]
+        },
+        {
+          "id": "2",
+          "advertisers": [{
+            "id": "1",
+            "blacklistMetrics": ["_COST_"]
+          }]
+        }
+      ]
     };
 
     const result = await validator(config, request);
@@ -170,10 +200,9 @@ describe('Valitator', async function () {
               "FILTER_LINE_ITEM"
             ],
             "filters": [{
-                "type": "FILTER_ADVERTISER",
-                "value": "1"
-              },
-            ],
+              "type": "FILTER_ADVERTISER",
+              "value": "1"
+            }, ],
             "metrics": [
               "METRIC_IMPRESSIONS",
               "METRIC_MEDIA_COST_USD"
@@ -188,10 +217,20 @@ describe('Valitator', async function () {
     };
 
     const config = {
-      advertisers: [{
-        "id": "1",
-        "blacklistMetrics": ["_COST_"]
-      }]
+      "partners": [{
+          "id": "1",
+          "advertisers": [{
+            "id": "2"
+          }]
+        },
+        {
+          "id": "2",
+          "advertisers": [{
+            "id": "1",
+            "blacklistMetrics": ["_COST_"]
+          }]
+        }
+      ]
     };
 
     const result = await validator(config, request);
@@ -199,5 +238,53 @@ describe('Valitator', async function () {
     expect(result).to.include({
       valid: false
     });
+  });
+
+  it('Does not metric filter if no blacklist passed', async () => {
+    const request = {
+      "operation": "createQuery",
+      "arguments": {
+        "query": {
+          "kind": "doubleclickbidmanager#query",
+          "metadata": {
+            "title": "Test",
+            "dataRange": "CURRENT_DAY",
+            "format": "CSV",
+            "locale": "en"
+          },
+          "params": {
+            "type": "TYPE_GENERAL",
+            "groupBys": [
+              "FILTER_ADVERTISER",
+              "FILTER_LINE_ITEM"
+            ],
+            "filters": [{
+              "type": "FILTER_ADVERTISER",
+              "value": "1"
+            }],
+            "metrics": [
+              "METRIC_IMPRESSIONS"
+            ]
+          },
+          "schedule": {
+            "frequency": "ONE_TIME"
+          },
+          "timezoneCode": "UTC"
+        }
+      }
+    };
+
+    const config = {
+      "partners": [{
+          "id": "1",
+          "advertisers": [{
+            "id": "1"
+          }]
+        }]
+    };
+
+    const result = await validator(config, request);
+
+    expect(result).to.equal(true);
   });
 });

@@ -83,7 +83,17 @@ Example:
 
 # Configuration
 
-In order to access API you need to create Google Cloud Application and configure solution with `clientId`, `clientSecret` obtained in Google Cloud Console and `refreshToken` obtained using Google OAuth API. These values needs to be exposed through  `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN` env variables. Also `dv360proxy/config.js` contains list of advertisers allowed to access as well as blacklisted metrics for each.
+## Access to DV360 API
+
+`aws ssm put-parameter --name "dv360proxy.credentials"  --value file://credentials.json --type "SecureString" --overwrite --region=us-east-1`
+
+## Allowed Partners, Advertisers and blacklisted metrics
+
+Lambda is configured using two SSM parameters. The first one 
+
+`aws ssm put-parameter --name "dv360proxy.config"  --value file://config.json --type "String" --overwrite --region=us-east-1`
+
+
 
 # Deploymnet
 
