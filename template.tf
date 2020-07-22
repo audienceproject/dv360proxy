@@ -89,7 +89,8 @@ data "aws_iam_policy_document" "ssm_policies_data" {
     effect = "Allow"
 
     actions = [
-      "ssm:GetParameter"
+      "ssm:GetParameter",
+      "ssm:GetParameters"
     ]
 
     resources = [
