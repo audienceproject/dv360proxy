@@ -1,9 +1,6 @@
 const validators = {
     getQueries: (config) => {
-        return {
-            valid: false,
-            reason: "Listing queries is denied"
-        }
+        return true;
     },
     getQuery: (config, {
         queryId
@@ -13,7 +10,7 @@ const validators = {
     /**
      * Created requests must:
      *  1. be filtered by advertiser allowed in Config
-     *  2. don't use blacklisted metrics / dimensions
+     *  2. don't use blacklisted metrics
      */
     createQuery: (config, {
         query
@@ -61,10 +58,11 @@ const validators = {
         }
 
         const metrics = query.params.metrics;
+        const allAdvertisers = [].concat.apply([], config.partners.map(p => p.advertisers));
 
         // Validae that all advertisers allowed to be queried
         for (const advertiserId of advertisers) {
-            const advertiser = config.advertisers.find((advertiserConfig) => String(advertiserConfig.id) === String(advertiserId));
+            const advertiser = allAdvertisers.find((advertiserConfig) => String(advertiserConfig.id) === String(advertiserId));
             if (!advertiser) {
                 return {
                     valid: false,
@@ -74,7 +72,7 @@ const validators = {
 
             // Make sure that requested metrics are whitelisted
             for (const metric of metrics) {
-                for (let blacklist of advertiser.blacklistMetrics) {
+                for (let blacklist of advertiser.blacklistMetrics || []) {
                     if (metric.indexOf(blacklist) !== -1) {
                         return {
                             valid: false,

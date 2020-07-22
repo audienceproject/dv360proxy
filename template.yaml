@@ -2,25 +2,54 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
   DV360 API proxy
-  
+
+Parameters: 
+  ApiCredentialsParameterName: 
+    Type: String
+    Default: dv360proxy.credentials
+    Description: 
+      Name of SSM parameter where Google Service Account credentials to DV360 API are stored.
+      See https://github.com/audienceproject/dv360proxy#configuration for details
+
+  ConfigParameterName: 
+    Type: String
+    Default: dv360proxy.config
+    Description: 
+      Name of SSM parameter where proxy configuration (allowed partners and advertisers) is stored. 
+      See https://github.com/audienceproject/dv360proxy#configuration for details
+
+  CallerAccountId:
+    Type: Number
+    Description: AWS Account ID that can call DV360 proxy 
+
 
 Resources:
-  DV360ConnectorFunction:
+  DV360ProxyFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: dv360proxy/
       Handler: app.lambdaHandler
       Runtime: nodejs12.x
       Timeout: 300
+      Policies:
+        - SSMParameterReadPolicy:
+            ParameterName: !Ref ConfigParameterName
+        - SSMParameterReadPolicy:
+            ParameterName: !Ref ApiCredentialsParameterName
+
       Environment:
         Variables:
-          GOOGLE_CLIENT_ID:
-          GOOGLE_CLIENT_SECRET: 
-          GOOGLE_REFRESH_TOKEN:
+          API_CREDENTIALS_PARAMETER_NAME: !Ref ApiCredentialsParameterName
+          CONFIG_PARAMETER_NAME: !Ref ConfigParameterName
 
-      
+  DV360ProxyFunctionInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties: 
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt DV360ProxyFunction.Arn
+      Principal: !Sub 'arn:aws:iam::${CallerAccountId}:root'
 
 Outputs:
-  DV360ConnectorFunction:
+  DV360ProxyFunction:
     Description: "DV360 Proxy Lambda Function ARN"
-    Value: !GetAtt DV360ConnectorFunction.Arn
+    Value: !GetAtt DV360ProxyFunction.Arn
