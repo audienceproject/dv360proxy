@@ -281,13 +281,12 @@ You will see Lambda function ARN after the deployment. You will need it. Also yo
 - `config_parameter_name`          - name of SSM parameter where proxy configuration (allowed partners and advertisers) is stored. Default `dv360proxy.config`
 
 
-## Testing
+### Testing
 
 There is special operation that can test API connection and Partner/Advertiser configuration - `ping`.
 
 Invoke Lamda function with `events/ping.json` as input, this will verify the connection
 
+### API Limits
 
-# Code organization
-
-## Unit-tests
+Given that own Google Application is created, you can see API requests count in Google Dashboard and you will be able to adjust limits.
