@@ -259,14 +259,19 @@ sam deploy  --stack-name dv360proxy --parameter-overrides "ApiCredentialsParamet
 ```
 
 where `111111` is AWS account ID allowed to invoke the function.
+
+You will see Lambda function ARN after the deployment. You will need it. Also you will be able to find this in AWS Console.
 ### Terraform
 
 Or using terraform
 
 ```
+terraform init
 terraform plan --var invocation_account_ids=[11111,2222]
 terraform apply --var invocation_account_ids=[11111,2222]
 ```
+
+You will see Lambda function ARN after the deployment. You will need it. Also you will be able to find this in AWS Console.
 
 #### Template settings
 
@@ -276,6 +281,11 @@ terraform apply --var invocation_account_ids=[11111,2222]
 
 
 ## Testing
+
+There is special operation that can test API connection and Partner/Advertiser configuration - `ping`.
+
+Invoke Lamda function with `events/ping.json` as input, this will verify the connection
+
 
 # Code organization
 

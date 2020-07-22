@@ -33,7 +33,6 @@ exports.lambdaHandler = async (request, context) => {
 
         // Invoke the function and return the result
         const response = operation(request.arguments);
-        console.log(response);
         return response;
     } catch (err) {
         console.log(err);
