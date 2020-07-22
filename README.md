@@ -166,6 +166,7 @@ Finally, you need to invite service-account email to DV360 and give reporting pe
 
 ![alt](docs/create_app_step12.png)![alt](docs/create_app_step13.png)
 
+
 ## Allowed Partners, Advertisers and blacklisted metrics
 
 The second piece of the configuration is non-secure JSON document that describes what partners and advertisers can be queried and what metrics can not be accessed.
@@ -285,7 +286,10 @@ You will see Lambda function ARN after the deployment. You will need it. Also yo
 
 There is special operation that can test API connection and Partner/Advertiser configuration - `ping`.
 
-Invoke Lamda function with `events/ping.json` as input, this will verify the connection
+Invoke Lamda function with `events/ping.json` as input, this will verify the connection.
+
+It may look like complicated process, however in fact it requires 15 minutes. Here is demo: [![](http://img.youtube.com/vi/FJASgXdOZBE/0.jpg)](http://www.youtube.com/watch?v=FJASgXdOZBE "")
+
 
 ### API Limits
 
