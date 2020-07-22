@@ -37,12 +37,12 @@ Request object structure is the following:
 
 | Operation     | Arguments           |
 | ------------- |-------------|
-| `getQueries`      |  |
+| `getQueries`      | `{ pageToken }` |
 | `getQuery`      | `{ queryId }`      |
 | `createQuery` | `{ query }` format defined at https://developers.google.com/bid-manager/v1.1/queries#resource      |
-| `runQuery` | `{queryId, data}` format defined at https://developers.google.com/bid-manager/v1.1/queries/runquery#request-body      |
-| `deleteQuery` | `{queryId}` |
-| `getQueryReports` | `{queryId}` |
+| `runQuery` | `{ queryId, data }` format defined at https://developers.google.com/bid-manager/v1.1/queries/runquery#request-body      |
+| `deleteQuery` | `{ queryId }` |
+| `getQueryReports` | `{ queryId, pageToken }` |
 
 Example:
 ```json
@@ -96,7 +96,7 @@ Parameters have default names:
 * `dv360proxy.credentials` (SecureString)
 * `dv360proxy.config` (String)
 
-Parameter names are passed to Lambda function through environment variables `API_CREDENTIALS_PARAMETER_NAME` and `CONFIG_PARAMETER_NAME`.
+Parameter names are passed to Lambda function through environment variables `API_CREDENTIALS_PARAMETER_NAME` and `CONFIG_PARAMETER_NAME` correspdondingly.
 
 You need to create these parameters manually in AWS Console or through API. Read in greater details below
 
