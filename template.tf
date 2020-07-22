@@ -21,7 +21,7 @@ provider "aws" {
 
 
 locals {
-  function_name = "dv360-connector"
+  function_name = "dv360proxy"
 }
 
 
@@ -131,7 +131,7 @@ data "aws_iam_policy_document" "assume_role_policies_data" {
 }
 
 resource "aws_iam_role" "lambda_role" {
-  name = "dv360-connector"
+  name = "dv360proxy"
 
   assume_role_policy = data.aws_iam_policy_document.assume_role_policies_data.json
 }

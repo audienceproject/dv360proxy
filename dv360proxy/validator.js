@@ -101,6 +101,9 @@ const validators = {
         queryId
     }) => {
         return true;
+    },
+    ping: (config) => {
+        return true;
     }
 };
 
