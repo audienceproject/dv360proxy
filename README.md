@@ -270,9 +270,10 @@ terraform apply --var invocation_account_ids=[11111,2222]
 
 #### Template settings
 
-- `aws_region`              - AWS Region used to deploy lambda. Default - `us-east-1`
-- `invocation_account_ids`  - list of AWS Accounts allowed to invoke lambda
-- `ssm_parameter_name`      - name of SSM Parameter wioth access settings. Default - `dv360proxy`
+- `aws_region`                     - AWS Region used to deploy lambda. Default - `us-east-1`
+- `invocation_account_ids`         - list of AWS Accounts allowed to invoke lambda
+- `api_credentials_parameter_name` - name of SSM parameter where Google Service Account credentials to DV360 API are stored. Default - `dv360proxy.credentials`
+- `config_parameter_name`          - name of SSM parameter where proxy configuration (allowed partners and advertisers) is stored. Default `dv360proxy.config`
 
 
 ## Testing
