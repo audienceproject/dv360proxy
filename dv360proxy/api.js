@@ -45,10 +45,10 @@ const API = function (requestId) {
 
     rax.attach(dbmAPI);
 
-    this.getQueries = async () => {
+    this.getQueries = async ({pageToken}) => {
         const url = "/queries";
         try {
-            const queriesResponse = await dbmAPI.get(url);
+            const queriesResponse = await dbmAPI.get(url, { params: { pageToken: pageToken } });
             return queriesResponse.data;
         } catch (err) {
             let errMessage = err.stack || err.toString();
@@ -138,10 +138,10 @@ const API = function (requestId) {
         }
     };
 
-    this.getQueryReports = async ({queryId}) => {
+    this.getQueryReports = async ({queryId, pageToken}) => {
         const url = `/queries/${queryId}/reports`;
         try {
-            const queriesResponse = await dbmAPI.get(url);
+            const queriesResponse = await dbmAPI.get(url, { params: { pageToken: pageToken } });
             return queriesResponse.data;
         } catch (err) {
             let errMessage = err.stack || err.toString();
