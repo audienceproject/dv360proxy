@@ -8,6 +8,22 @@ It solves three tasks:
 
 Except of this is acts as a proxy, with no modification of requests and responses.
 
+Table of Contents
+=================
+
+   * [DV360 Proxy](#dv360-proxy)
+   * [Table of Contents](#table-of-contents)
+   * [API Reference](#api-reference)
+   * [Configuration](#configuration)
+      * [Access to DV360 API](#access-to-dv360-api)
+      * [Allowed Partners, Advertisers and blacklisted metrics](#allowed-partners-advertisers-and-blacklisted-metrics)
+   * [Deploymnet](#deploymnet)
+      * [Serverless Application Model](#serverless-application-model)
+      * [Terraform](#terraform)
+      * [Testing](#testing)
+      * [Updates](#updates)
+      * [API Limits](#api-limits)
+
 
 # API Reference
 
@@ -82,7 +98,7 @@ Example:
 ```
 
 
-## Configuration
+# Configuration
 
 > Configuration & Deployment may look complicated. In fact is is very fast proccess taking up to 15 minutes if you have configured AWS CLI and Terraform (or AWS SAM). Checkout the demo below
 [![](http://img.youtube.com/vi/FJASgXdOZBE/0.jpg)](http://www.youtube.com/watch?v=FJASgXdOZBE "DV360 installation demo")
@@ -120,43 +136,43 @@ In order to create new application [using the setup tool](https://console.develo
 
  Choose to create new application, accept Google Terms and Conditions and continue to the next Screen.
 
-![alt](docs/create_app_step1.png)![alt](docs/create_app_step2.png)
+![](docs/create_app_step1.png)![](docs/create_app_step2.png)
 
 You may want to rename the project. Also you will be able to do it later.
 
 Now you need to go to Credentials screen. 
 
-![alt](docs/create_app_step3.png)
+![](docs/create_app_step3.png)
 
 Click on "service account" link
 
-![alt](docs/create_app_step4.png)
+![](docs/create_app_step4.png)
 
 Choose to create new Service account
 
-![alt](docs/create_app_step5.png)
+![](docs/create_app_step5.png)
 
 Give it a name, like "DV360 API Proxy"
 
-![alt](docs/create_app_step6.png)
+![](docs/create_app_step6.png)
 
 Once, service account is created, you can skip next two optional steps and navigate to "Service accounts" list and choose to "Create key"
 
-![alt](docs/create_app_step8.png)
+![](docs/create_app_step8.png)
 
 Choose JSON as key-type
 
-![alt](docs/create_app_step9.png)
+![](docs/create_app_step9.png)
 
 Make sure, file is downloaded. You must store this file securely and protect against its leakage.
 
-![alt](docs/create_app_step10.png)
+![](docs/create_app_step10.png)
 
 Now you need to create the SSM Parameter. Recommended name is `dv360proxy.credentials`, however you can enter you any if you have organization policies regarding naming. You can do in [AWS Console / SSM / Create Parameter](https://console.aws.amazon.com/systems-manager/parameters/create)  page. **Doublecheck the region, so it is created in the correct one**
 
-![alt](docs/create_app_step11.png)
+![](docs/create_app_step11.png)
 
-Alternatively, you can rename downloaded file to `credentials.json` and use AWS CLI to upload credentials
+ernatively, you can rename downloaded file to `credentials.json` and use AWS CLI to upload credentials
 
 ```bash
 aws ssm put-parameter --name "dv360proxy.credentials"  --value file://credentials.json --type "SecureString" --overwrite --region=us-east-1
@@ -167,7 +183,7 @@ Now, you can delete file with credentials.
 Finally, you need to invite service-account email to DV360 and give reporting permissions.
 
 
-![alt](docs/create_app_step12.png)![alt](docs/create_app_step13.png)
+![](docs/create_app_step12.png)![](docs/create_app_step13.png)
 
 
 ## Allowed Partners, Advertisers and blacklisted metrics
@@ -221,20 +237,20 @@ It can be human-readed as following:
 
 In order to help with JSON file creation, you can find `configurator.html` in the repo that provides UI for file generation.
 
-![alt](docs/configure_step1.png)
+![](docs/configure_step1.png)
 
 Now you need to create the SSM Parameter. Recommended name is `dv360proxy.config`, however you can enter you any if you have organization policies regarding naming. You can do in [AWS Console / SSM / Create Parameter](https://console.aws.amazon.com/systems-manager/parameters/create)  page. **Doublecheck the region, so it is created in the correct one**
 
-![alt](docs/configure_step2.png)
+![](docs/configure_step2.png)
 
-Alternativelym you can do it using AWS CLI. Save config as `config.json`. You can use "Donwload" button to save it from the UI.
+ernativelym you can do it using AWS CLI. Save config as `config.json`. You can use "Donwload" button to save it from the UI.
 
 
 ```bash
 aws ssm put-parameter --name "dv360proxy.config"  --value file://config.json --type "String" --overwrite --region=us-east-1
 ```
 
-## Deploymnet
+# Deploymnet
 
 
 Prior to the deployment you need to clone the repository and install npm depdendencies in `dv360proxy` folder.
@@ -259,7 +275,7 @@ First time you deploy, you can use guided mode
 sam deploy --guided
 ```
 
-Alternatively, you can pass all arguments
+ernatively, you can pass all arguments
 
 ```bash
 sam deploy  --stack-name dv360proxy --parameter-overrides "ApiCredentialsParameterName=\"dv360proxy.credentials\" ConfigParameterName=\"dv360proxy.config\" CallerAccountId=\"111111\"" --capabilities CAPABILITY_IAM --region us-east-1
@@ -269,7 +285,7 @@ where `111111` is AWS account ID allowed to invoke the function.
 
 You will see Lambda function ARN after the deployment. You will need it. Also you will be able to find this in AWS Console.
 
-### Terraform
+## Terraform
 
 Or using terraform
 
@@ -281,7 +297,7 @@ terraform apply --var invocation_account_ids=[11111,2222]
 
 You will see Lambda function ARN after the deployment. You will need it. Also you will be able to find this in AWS Console.
 
-#### Template settings
+Following parameters can be passed additionally to terraform:
 
 - `aws_region`                     - AWS Region used to deploy lambda. Default - `us-east-1`
 - `invocation_account_ids`         - list of AWS Accounts allowed to invoke lambda
@@ -289,7 +305,7 @@ You will see Lambda function ARN after the deployment. You will need it. Also yo
 - `config_parameter_name`          - name of SSM parameter where proxy configuration (allowed partners and advertisers) is stored. Default `dv360proxy.config`
 
 
-### Testing
+## Testing
 
 There is special operation that can test API connection and Partner/Advertiser configuration - `ping`.
 
@@ -350,12 +366,17 @@ Access not configured
 }
 ```
 
-### Updates
+## Updates
 
 Given that DV360 APIs are evolving, this proxy can be updated and new operations may be introduces. Upgrade procedure is the same as installation. You don't need to reconfigure, just re-upload Lambda using SAM or Terraform.
 
 
 
-### API Limits
+## API Limits
 
-Given that own Google Application is created, you can see API requests count in Google Dashboard and you will be able to adjust limits.
+There is not built-it throttling or rate-limits in the proxy. These limits can be managed in Google Developer Console.
+
+DV360Proxy has embed retry polcieis on retrieable API errors with exponential backoff.
+
+
+![Configure quotas](docs/configure_quotas.png)
