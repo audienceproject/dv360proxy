@@ -84,7 +84,10 @@ Example:
 
 ## Configuration
 
-> Configuration & Deployment may look complicated. In fact is is very fast proccess taking up to 5 minutes if you have AWS CLI and Terraform (or AWS SAM). Check the video
+> Configuration & Deployment may look complicated. In fact is is very fast proccess taking up to 15 minutes if you have configured AWS CLI and Terraform (or AWS SAM). Checkout the demo below
+[![](http://img.youtube.com/vi/FJASgXdOZBE/0.jpg)](http://www.youtube.com/watch?v=FJASgXdOZBE "DV360 installation demo")
+
+
 
 DV360Proxy needs two configuration parameters:
 * API Credentials of Service Account to acces DV360 API
@@ -233,10 +236,13 @@ aws ssm put-parameter --name "dv360proxy.config"  --value file://config.json --t
 
 ## Deploymnet
 
-Prior to the deployment you need to clone the repository and install npm depdendencies.
+
+Prior to the deployment you need to clone the repository and install npm depdendencies in `dv360proxy` folder.
 
 ```bash
+cd dv360proxy
 npm install
+cd ..
 ```
 
 Now you are ready for the deployment.
@@ -262,6 +268,7 @@ sam deploy  --stack-name dv360proxy --parameter-overrides "ApiCredentialsParamet
 where `111111` is AWS account ID allowed to invoke the function.
 
 You will see Lambda function ARN after the deployment. You will need it. Also you will be able to find this in AWS Console.
+
 ### Terraform
 
 Or using terraform
@@ -286,9 +293,67 @@ You will see Lambda function ARN after the deployment. You will need it. Also yo
 
 There is special operation that can test API connection and Partner/Advertiser configuration - `ping`.
 
-Invoke Lamda function with `events/ping.json` as input, this will verify the connection.
+Invoke Lamda function with `events/ping.json` as input, this will verify the connection and result will be written in `out.json` file.
 
-It may look like complicated process, however in fact it requires 15 minutes. Here is demo: [![](http://img.youtube.com/vi/FJASgXdOZBE/0.jpg)](http://www.youtube.com/watch?v=FJASgXdOZBE "")
+**Examples**
+
+Valid confuguration:
+```json
+{
+    "ok": true,
+    "canAccessDV360Api": true,
+    "canAccessDBMApi": true,
+    "errors": [],
+    "availableAdvertisers": [{
+        "advertiserId": "1234566",
+        "advertiserName": "Some advertiser",
+        "blacklistMetrics": ["_FEE_", "_COST_"],
+        "partnerId": "12345"
+    }],
+    "unavailableAdvertisers": []
+}
+```
+
+Unaccessible advertiser configured:
+```json
+{
+    "ok": false,
+    "canAccessDV360Api": true,
+    "canAccessDBMApi": true,
+    "errors": ["GET /advertisers/666 responded with 403"],
+    "availableAdvertisers": [{
+        "advertiserId": "1234566",
+        "advertiserName": "Some advertiser",
+        "blacklistMetrics": ["_FEE_", "_COST_"],
+        "partnerId": "12345"
+    }],
+    "unavailableAdvertisers": [{
+        "advertiserId": "666",
+        "partnerId": "12345"
+    }]
+}
+```
+
+Access not configured
+
+```json
+{
+    "ok": false,
+    "canAccessDV360Api": false,
+    "canAccessDBMApi": false,
+    "errors": ["GET /advertisers/3482931 responded with 403", "Unable to connect to DBM API"],
+    "availableAdvertisers": [],
+    "unavailableAdvertisers": [{
+        "advertiserId": "3482931",
+        "partnerId": "2828536"
+    }]
+}
+```
+
+### Updates
+
+Given that DV360 APIs are evolving, this proxy can be updated and new operations may be introduces. Upgrade procedure is the same as installation. You don't need to reconfigure, just re-upload Lambda using SAM or Terraform.
+
 
 
 ### API Limits
