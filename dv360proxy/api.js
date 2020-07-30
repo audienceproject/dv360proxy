@@ -194,6 +194,7 @@ const API = function (requestId) {
             ok: true,
             canAccessDV360Api: false,
             canAccessDBMApi: false,
+            serviceAccount: null,
             errors: [],
             availableAdvertisers: [],
             unavailableAdvertisers: []
@@ -208,6 +209,7 @@ const API = function (requestId) {
             return response;
         }
 
+        response.serviceAccount = config.credentials.client_email;
         const partners = config.runtimeConfig.partners;
 
         for (const partner of partners) {
