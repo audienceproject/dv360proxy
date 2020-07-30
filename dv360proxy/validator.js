@@ -58,7 +58,7 @@ const validators = {
         }
 
         const metrics = query.params.metrics;
-        const allAdvertisers = [].concat.apply([], config.partners.map(p => p.advertisers));
+        const allAdvertisers = [].concat.apply([], config.runtimeConfig.partners.map(p => p.advertisers));
 
         // Validae that all advertisers allowed to be queried
         for (const advertiserId of advertisers) {
