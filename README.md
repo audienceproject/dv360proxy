@@ -180,7 +180,7 @@ aws ssm put-parameter --name "dv360proxy.credentials"  --value file://credential
 
 Now, you can delete file with credentials.
 
-Finally, you need to invite service-account email to DV360 and give reporting permissions.
+Finally, you need to invite service-account email to DV360 and give **Read only** permissions.
 
 
 ![](docs/create_app_step12.png)![](docs/create_app_step13.png)
