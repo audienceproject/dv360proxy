@@ -8,7 +8,7 @@
   "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.717.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "gtoken": "^5.0.2",
     "querystring": "^0.2.0",
     "readline-sync": "^1.4.10",
