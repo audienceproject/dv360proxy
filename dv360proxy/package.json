@@ -7,18 +7,18 @@
   "author": "Roman Gomolko",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.717.0",
-    "axios": "^0.19.2",
+    "aws-sdk": "^2.918.0",
+    "axios": "^0.21.1",
     "gtoken": "^5.0.2",
-    "querystring": "^0.2.0",
+    "querystring": "^0.2.1",
     "readline-sync": "^1.4.10",
-    "retry-axios": "^2.2.1"
+    "retry-axios": "^2.4.0"
   },
   "scripts": {
     "test": "mocha tests/unit/"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
+    "chai": "^4.3.4",
     "mocha": "^6.2.3"
   }
 }
