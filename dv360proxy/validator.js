@@ -2,7 +2,15 @@ const validators = {
     getQueries: (config) => {
         return true;
     },
+    getQueries_v2: (config) => {
+        return true;
+    },
     getQuery: (config, {
+        queryId
+    }) => {
+        return true;
+    },
+    getQuery_v2: (config, {
         queryId
     }) => {
         return true;
@@ -29,64 +37,70 @@ const validators = {
             "params": {
                 "type": "TYPE_GENERAL",
                 "groupBys": [
-                "FILTER_ADVERTISER",
-                "FILTER_LINE_ITEM"
+                    "FILTER_ADVERTISER",
+                    "FILTER_LINE_ITEM"
                 ],
                 "filters": [{
-                "type": "FILTER_ADVERTISER",
-                "value": "3482931"
+                    "type": "FILTER_ADVERTISER",
+                    "value": "3482931"
                 }],
                 "metrics": [
-                "METRIC_IMPRESSIONS"
+                    "METRIC_IMPRESSIONS"
                 ]
             },
             "schedule": {
                 "frequency": "ONE_TIME"
             },
             "timezoneCode": "UTC"
-            }
+         }
         */
-        // If query is filtered by multiple advertisers, the same filter type appears twice
-        const advertisers = (query.params.filters || [])
-            .filter(filter => filter.type === "FILTER_ADVERTISER")
-            .map(filter => filter.value);
-        if (advertisers.length === 0) {
-            return {
-                valid: false,
-                reason: "Requests does not have FILTER_ADVERTISER filter"
-            };
-        }
-
-        const metrics = query.params.metrics;
-        const allAdvertisers = [].concat.apply([], config.runtimeConfig.partners.map(p => p.advertisers));
-
-        // Validae that all advertisers allowed to be queried
-        for (const advertiserId of advertisers) {
-            const advertiser = allAdvertisers.find((advertiserConfig) => String(advertiserConfig.id) === String(advertiserId));
-            if (!advertiser) {
-                return {
-                    valid: false,
-                    reason: `Advertiser ${advertiserId} is not allowed to access`
-                };
-            }
-
-            // Make sure that requested metrics are whitelisted
-            for (const metric of metrics) {
-                for (let blacklist of advertiser.blacklistMetrics || []) {
-                    if (metric.indexOf(blacklist) !== -1) {
-                        return {
-                            valid: false,
-                            reason: `Metric ${metric} is blacklisted for advertiser ${advertiserId}`
-                        };
+        return validateQuery(config, query);
+    },
+    createQuery_v2: (config, {
+        query
+    }) => {
+        /*
+        See schema of Query resource- https://developers.google.com/bid-manager/reference/rest/v2/queries#Query.
+        Example:
+         {
+            "queryId": "string",
+            "metadata": {
+                "title": "Test",
+                "dataRange": {
+                    "range": "CURRENT_DAY"
+                },
+                "format": "CSV"
+            },
+            "params": {
+                "type": "STANDARD",
+                "groupBys": [
+                    "FILTER_ADVERTISER",
+                    "FILTER_LINE_ITEM"
+                ],
+                "filters": [
+                    {
+                        "type": "FILTER_ADVERTISER",
+                        "value": "3482931"
                     }
-                }
+                ],
+                "metrics": [
+                    "METRIC_IMPRESSIONS"
+                ]
+            },
+            "schedule": {
+                "frequency": "ONE_TIME"
             }
-
-        }
-
-        return true;
+         }
+        */
+        return validateQuery(config, query);
     },
     runQuery: (config, {
+        queryId,
+        data
+    }) => {
+        return true;
+    },
+    runQuery_v2: (config, {
         queryId,
         data
     }) => {
@@ -97,15 +111,70 @@ const validators = {
     }) => {
         return true;
     },
+    deleteQuery_v2: (config, {
+        queryId
+    }) => {
+        return true;
+    },
     getQueryReports: (config, {
+        queryId
+    }) => {
+        return true;
+    },
+    getQueryReports_v2: (config, {
         queryId
     }) => {
         return true;
     },
     ping: (config) => {
         return true;
+    },
+    ping_v2: (config) => {
+        return true;
     }
 };
+
+function validateQuery(config, query) {
+    // If query is filtered by multiple advertisers, the same filter type appears twice
+    const advertisers = (query.params.filters || [])
+        .filter(filter => filter.type === "FILTER_ADVERTISER")
+        .map(filter => filter.value);
+    
+    if (advertisers.length === 0) {
+        return {
+            valid: false,
+            reason: "Requests does not have FILTER_ADVERTISER filter"
+        };
+    }
+
+    const metrics = query.params.metrics;
+    const allAdvertisers = [].concat.apply([], config.runtimeConfig.partners.map(p => p.advertisers));
+
+    // Validate that all advertisers allowed to be queried
+    for (const advertiserId of advertisers) {
+        const advertiser = allAdvertisers.find((advertiserConfig) => String(advertiserConfig.id) === String(advertiserId));
+        if (!advertiser) {
+            return {
+                valid: false,
+                reason: `Advertiser ${advertiserId} is not allowed to access`
+            };
+        }
+
+        // Make sure that requested metrics are whitelisted
+        for (const metric of metrics) {
+            for (let blacklist of advertiser.blacklistMetrics || []) {
+                if (metric.indexOf(blacklist) !== -1) {
+                    return {
+                        valid: false,
+                        reason: `Metric ${metric} is blacklisted for advertiser ${advertiserId}`
+                    };
+                }
+            }
+        }
+    }
+
+    return true;
+}
 
 module.exports = async function (config, request) {
     var validator = validators[request.operation];
