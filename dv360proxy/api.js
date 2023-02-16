@@ -84,7 +84,7 @@ const API = function (requestId) {
         const partners = config.runtimeConfig.partners;
         for (const partner of partners) {
             for (const advertiser of partner.advertisers) {
-                const { data, status } = await dvApiV2.getAdvertiser(advertiser.Id);
+                const { data, status } = await dvApiV2.getAdvertiser(advertiser.id);
                 if (status !== 200) {
                     response.ok = false;
                     response.unavailableAdvertisers.push({
