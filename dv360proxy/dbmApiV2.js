@@ -45,6 +45,13 @@ const doubleClickBidManagerApiV2 = function (requestId) {
             return queriesResponse.data;
         }, 'DV360API.getQueryReports', queryId);
     };
+
+    this.getQueryReport = async (queryId, reportId) => {
+        return await baseApi.processRequest(async () => {
+            const queriesResponse = await dbmApi.get(`/queries/${queryId}/reports/${reportId}`);
+            return queriesResponse.data;
+        }, 'DV360API.getQueryReport', reportId);
+    };
 };
 
 module.exports = doubleClickBidManagerApiV2;

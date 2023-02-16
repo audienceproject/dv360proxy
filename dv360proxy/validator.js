@@ -126,10 +126,13 @@ const validators = {
     }) => {
         return true;
     },
-    ping: (config) => {
+    getQueryReport_v2: (config, {
+        queryId,
+        reportId
+    }) => {
         return true;
     },
-    ping_v2: (config) => {
+    ping: (config) => {
         return true;
     }
 };

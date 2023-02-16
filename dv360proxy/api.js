@@ -1,11 +1,9 @@
 const configLoader = require("./config");
-const DvApi = require("./dvApi");
 const DvApiV2 = require("./dvApiV2");
 const DbmApi = require("./dbmApi");
 const DbmApiV2 = require("./dbmApiV2");
 
 const API = function (requestId) {
-    var dvApi = new DvApi(requestId);
     var dvApiV2 = new DvApiV2(requestId);
     var dbmApi = new DbmApi(requestId);
     var dbmApiV2 = new DbmApiV2(requestId);
@@ -58,15 +56,11 @@ const API = function (requestId) {
         return await dbmApiV2.getQueryReports(queryId, pageToken);
     };
 
+    this.getQueryReport_v2 = async ({queryId, reportId}) => {
+        return await dbmApiV2.getQueryReport(queryId, reportId);
+    };
+
     this.ping = async () => {
-        return await ping(async (advertiserId) => await dvApi.getAdvertiser(advertiserId), async () => await dbmApi.getQueries());
-    }
-
-    this.ping_v2 = async () => {
-        return await ping(async (advertiserId) => await dvApiV2.getAdvertiser(advertiserId), async () => await dbmApiV2.getQueries());
-    }
-
-    async function ping(dvCheck, dbmCheck) {
         const response = {
             ok: true,
             canAccessDV360Api: false,
@@ -90,7 +84,7 @@ const API = function (requestId) {
         const partners = config.runtimeConfig.partners;
         for (const partner of partners) {
             for (const advertiser of partner.advertisers) {
-                const { data, status } =  await dvCheck(advertiser.id);
+                const { data, status } = await dvApiV2.getAdvertiser(advertiser.Id);
                 if (status !== 200) {
                     response.ok = false;
                     response.unavailableAdvertisers.push({
@@ -121,7 +115,7 @@ const API = function (requestId) {
         }
 
         try {
-            await dbmCheck();
+            await dbmApiV2.getQueries();
             response.canAccessDBMApi = true;
         } catch (err) {
             response.ok = false;
