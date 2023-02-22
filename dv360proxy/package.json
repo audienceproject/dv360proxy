@@ -7,7 +7,7 @@
   "author": "Roman Gomolko",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.918.0",
+    "aws-sdk": "^2.1320.0",
     "axios": "^0.21.2",
     "gtoken": "^5.0.2",
     "querystring": "^0.2.1",
