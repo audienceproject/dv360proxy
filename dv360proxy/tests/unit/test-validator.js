@@ -7,7 +7,7 @@ const {
 } = require('console');
 const expect = chai.expect;
 
-describe('Valitator', async function () {
+describe('Validator', async function() {
   it('Checks that requests are filtered by advertisers', async () => {
     const request = {
       "operation": "createQuery",
@@ -39,20 +39,23 @@ describe('Valitator', async function () {
     };
 
     const config = {
-      "partners": [{
-          "id": "1",
-          "advertisers": [{
-            "id": "2"
-          }]
-        },
-        {
-          "id": "2",
-          "advertisers": [{
+      "runtimeConfig": {
+        "partners":
+          [{
             "id": "1",
-            "blacklistMetrics": ["_COST_"]
-          }]
-        }
-      ]
+            "advertisers": [{
+              "id": "2"
+            }]
+          },
+            {
+              "id": "2",
+              "advertisers": [{
+                "id": "1",
+                "blacklistMetrics": ["_COST_"]
+              }]
+            }
+          ]
+      }
     };
 
     const result = await validator(config, request);
@@ -97,20 +100,22 @@ describe('Valitator', async function () {
     };
 
     const config = {
-      "partners": [{
+      "runtimeConfig": {
+        "partners": [{
           "id": "1",
           "advertisers": [{
             "id": "2"
           }]
         },
-        {
-          "id": "2",
-          "advertisers": [{
-            "id": "1",
-            "blacklistMetrics": ["_COST_"]
-          }]
-        }
-      ]
+          {
+            "id": "2",
+            "advertisers": [{
+              "id": "1",
+              "blacklistMetrics": ["_COST_"]
+            }]
+          }
+        ]
+      }
     };
 
     const result = await validator(config, request);
@@ -137,9 +142,9 @@ describe('Valitator', async function () {
               "FILTER_LINE_ITEM"
             ],
             "filters": [{
-                "type": "FILTER_ADVERTISER",
-                "value": "1"
-              },
+              "type": "FILTER_ADVERTISER",
+              "value": "1"
+            },
               {
                 "type": "FILTER_ADVERTISER",
                 "value": "3"
@@ -158,20 +163,22 @@ describe('Valitator', async function () {
     };
 
     const config = {
-      "partners": [{
+      "runtimeConfig": {
+        "partners": [{
           "id": "1",
           "advertisers": [{
             "id": "2"
           }]
         },
-        {
-          "id": "2",
-          "advertisers": [{
-            "id": "1",
-            "blacklistMetrics": ["_COST_"]
-          }]
-        }
-      ]
+          {
+            "id": "2",
+            "advertisers": [{
+              "id": "1",
+              "blacklistMetrics": ["_COST_"]
+            }]
+          }
+        ]
+      }
     };
 
     const result = await validator(config, request);
@@ -202,7 +209,7 @@ describe('Valitator', async function () {
             "filters": [{
               "type": "FILTER_ADVERTISER",
               "value": "1"
-            }, ],
+            },],
             "metrics": [
               "METRIC_IMPRESSIONS",
               "METRIC_MEDIA_COST_USD"
@@ -217,20 +224,22 @@ describe('Valitator', async function () {
     };
 
     const config = {
-      "partners": [{
+      "runtimeConfig": {
+        "partners": [{
           "id": "1",
           "advertisers": [{
             "id": "2"
           }]
         },
-        {
-          "id": "2",
-          "advertisers": [{
-            "id": "1",
-            "blacklistMetrics": ["_COST_"]
-          }]
-        }
-      ]
+          {
+            "id": "2",
+            "advertisers": [{
+              "id": "1",
+              "blacklistMetrics": ["_COST_"]
+            }]
+          }
+        ]
+      }
     };
 
     const result = await validator(config, request);
@@ -275,12 +284,14 @@ describe('Valitator', async function () {
     };
 
     const config = {
-      "partners": [{
+      "runtimeConfig": {
+        "partners": [{
           "id": "1",
           "advertisers": [{
             "id": "1"
           }]
         }]
+      }
     };
 
     const result = await validator(config, request);
