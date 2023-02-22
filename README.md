@@ -29,7 +29,7 @@ Table of Contents
 
 Solution exposes Lambda function, that needs to be invoked directly using `lambda:InvokeFunction` API. There is built-in possibility to allow external AWS account to call the Lambda function.
 
-Lambda receives request, validates it against allowed Advertisers and Metrics and invokes corresponding DV360 API. The proxy uses [v1.1 DBM API](https://developers.google.com/bid-manager/v1.1) and exposes query-related methods.
+Lambda receives request, validates it against allowed Advertisers and Metrics and invokes corresponding DV360 API. The proxy uses [v2 DBM API](https://developers.google.com/bid-manager/reference/rest) and exposes query-related methods.
 
 Request object structure is the following:
 
@@ -42,23 +42,25 @@ Request object structure is the following:
 ```
 
 `apiOperation` is one of:
-* `getQueries`
-* `getQuery`
-* `createQuery`
-* `runQuery`
-* `deleteQuery`
-* `getQueryReports`
+* `getQueries_v2`
+* `getQuery_v2`
+* `createQuery_v2`
+* `runQuery_v2`
+* `deleteQuery_v2`
+* `getQueryReport_v2`
+* `getQueryReports_v2`
 
 `operationArguments` are different for different operations
 
-| Operation     | Arguments           |
-| ------------- |-------------|
-| `getQueries`      | `{ pageToken }` |
-| `getQuery`      | `{ queryId }`      |
-| `createQuery` | `{ query }` format defined at https://developers.google.com/bid-manager/v1.1/queries#resource      |
-| `runQuery` | `{ queryId, data }` format defined at https://developers.google.com/bid-manager/v1.1/queries/runquery#request-body      |
-| `deleteQuery` | `{ queryId }` |
-| `getQueryReports` | `{ queryId, pageToken }` |
+| Operation            | Arguments                                                                                                                     |
+|----------------------|-------------------------------------------------------------------------------------------------------------------------------|
+| `getQueries_v2`      | `{ pageToken }`                                                                                                               |
+| `getQuery_v2`        | `{ queryId }`                                                                                                                 |
+| `createQuery_v2`     | `{ query }` format defined at https://developers.google.com/bid-manager/reference/rest/v2/queries#Query                       |
+| `runQuery_v2`        | `{ queryId, data }` format defined at https://developers.google.com/bid-manager/reference/rest/v2/queries/run#RunQueryRequest |
+| `deleteQuery_v2`     | `{ queryId }`                                                                                                                 |
+| `getQueryReport_v2`  | `{ queryId, reportId }`                                                                                                       |
+| `getQueryReports_v2` | `{ queryId, pageToken }`                                                                                                      |
 
 Example:
 ```json
@@ -66,34 +68,34 @@ Example:
   "operation": "createQuery",
   "arguments": {
     "query": {
-      "kind": "doubleclickbidmanager#query",
       "metadata": {
         "title": "Test",
-        "dataRange": "CURRENT_DAY",
-        "format": "CSV",
-        "locale": "en"
+        "dataRange": {
+          "range": "CURRENT_DAY"
+        },
+        "format": "CSV"
       },
       "params": {
-        "type": "TYPE_GENERAL",
+        "type": "STANDARD",
         "groupBys": [
           "FILTER_ADVERTISER",
           "FILTER_LINE_ITEM"
         ],
-        "filters": [{
-          "type": "FILTER_ADVERTISER",
-          "value": "1"
-        }],
+        "filters": [
+          {
+            "type": "FILTER_ADVERTISER",
+            "value": "1"
+          }
+        ],
         "metrics": [
           "METRIC_IMPRESSIONS"
         ]
       },
       "schedule": {
         "frequency": "ONE_TIME"
-      },
-      "timezoneCode": "UTC"
+      }
     }
   }
-
 }
 ```
 
@@ -316,37 +318,51 @@ Invoke Lambda function with `events/ping.json` as input, this will verify the co
 Valid configuration:
 ```json
 {
-    "ok": true,
-    "canAccessDV360Api": true,
-    "canAccessDBMApi": true,
-    "errors": [],
-    "availableAdvertisers": [{
-        "advertiserId": "1234566",
-        "advertiserName": "Some advertiser",
-        "blacklistMetrics": ["_FEE_", "_COST_"],
-        "partnerId": "12345"
-    }],
-    "unavailableAdvertisers": []
+  "ok": true,
+  "canAccessDV360Api": true,
+  "canAccessDBMApi": true,
+  "errors": [],
+  "availableAdvertisers": [
+    {
+      "advertiserId": "1234566",
+      "advertiserName": "Some advertiser",
+      "blacklistMetrics": [
+        "_FEE_",
+        "_COST_"
+      ],
+      "partnerId": "12345"
+    }
+  ],
+  "unavailableAdvertisers": []
 }
 ```
 
 Inaccessible advertiser configured:
 ```json
 {
-    "ok": false,
-    "canAccessDV360Api": true,
-    "canAccessDBMApi": true,
-    "errors": ["GET /advertisers/666 responded with 403"],
-    "availableAdvertisers": [{
-        "advertiserId": "1234566",
-        "advertiserName": "Some advertiser",
-        "blacklistMetrics": ["_FEE_", "_COST_"],
-        "partnerId": "12345"
-    }],
-    "unavailableAdvertisers": [{
-        "advertiserId": "666",
-        "partnerId": "12345"
-    }]
+  "ok": false,
+  "canAccessDV360Api": true,
+  "canAccessDBMApi": true,
+  "errors": [
+    "GET /advertisers/666 responded with 403"
+  ],
+  "availableAdvertisers": [
+    {
+      "advertiserId": "1234566",
+      "advertiserName": "Some advertiser",
+      "blacklistMetrics": [
+        "_FEE_",
+        "_COST_"
+      ],
+      "partnerId": "12345"
+    }
+  ],
+  "unavailableAdvertisers": [
+    {
+      "advertiserId": "666",
+      "partnerId": "12345"
+    }
+  ]
 }
 ```
 
@@ -354,15 +370,20 @@ Access not configured
 
 ```json
 {
-    "ok": false,
-    "canAccessDV360Api": false,
-    "canAccessDBMApi": false,
-    "errors": ["GET /advertisers/3482931 responded with 403", "Unable to connect to DBM API"],
-    "availableAdvertisers": [],
-    "unavailableAdvertisers": [{
-        "advertiserId": "3482931",
-        "partnerId": "2828536"
-    }]
+  "ok": false,
+  "canAccessDV360Api": false,
+  "canAccessDBMApi": false,
+  "errors": [
+    "GET /advertisers/3482931 responded with 403",
+    "Unable to connect to DBM API"
+  ],
+  "availableAdvertisers": [],
+  "unavailableAdvertisers": [
+    {
+      "advertiserId": "3482931",
+      "partnerId": "2828536"
+    }
+  ]
 }
 ```
 
