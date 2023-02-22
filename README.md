@@ -17,7 +17,7 @@ Table of Contents
    * [Configuration](#configuration)
       * [Access to DV360 API](#access-to-dv360-api)
       * [Allowed Partners, Advertisers and blacklisted metrics](#allowed-partners-advertisers-and-blacklisted-metrics)
-   * [Deploymnet](#deploymnet)
+   * [Deployment](#deployment)
       * [Serverless Application Model](#serverless-application-model)
       * [Terraform](#terraform)
       * [Testing](#testing)
@@ -29,7 +29,7 @@ Table of Contents
 
 Solution exposes Lambda function, that needs to be invoked directly using `lambda:InvokeFunction` API. There is built-in possibility to allow external AWS account to call the Lambda function.
 
-Lambda receives request, validates is against allowed Advertisers and Metrics and invokes corresponding DV360 API. The proxy uses [v1.1 DBM API](https://developers.google.com/bid-manager/v1.1) and exposes query-related methods.
+Lambda receives request, validates it against allowed Advertisers and Metrics and invokes corresponding DV360 API. The proxy uses [v1.1 DBM API](https://developers.google.com/bid-manager/v1.1) and exposes query-related methods.
 
 Request object structure is the following:
 
@@ -100,26 +100,26 @@ Example:
 
 # Configuration
 
-> Configuration & Deployment may look complicated. In fact is is very fast proccess taking up to 15 minutes if you have configured AWS CLI and Terraform (or AWS SAM). Checkout the demo below
+> Configuration & Deployment may look complicated. In fact is very fast process taking up to 15 minutes if you have configured AWS CLI and Terraform (or AWS SAM). Checkout the demo below
 [![](http://img.youtube.com/vi/FJASgXdOZBE/0.jpg)](http://www.youtube.com/watch?v=FJASgXdOZBE "DV360 installation demo")
 
 
 
 DV360Proxy needs two configuration parameters:
 * API Credentials of Service Account to acces DV360 API
-* Configuration for the ptoxy, that has information about what partners and advertisers can be queried and blacklisted metrics for every adertiser
+* Configuration for the proxy, that has information about what partners and advertisers can be queried and blacklisted metrics for every advertiser
 
-Parameters are stored in [AWS Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html). 
+Parameters are stored in [AWS Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html).
 
 Parameters have default names:
 * `dv360proxy.credentials` (SecureString)
 * `dv360proxy.config` (String)
 
-Parameter names are passed to Lambda function through environment variables `API_CREDENTIALS_PARAMETER_NAME` and `CONFIG_PARAMETER_NAME` correspdondingly.
+Parameter names are passed to Lambda function through environment variables `API_CREDENTIALS_PARAMETER_NAME` and `CONFIG_PARAMETER_NAME` correspondingly.
 
 You need to create these parameters manually in AWS Console or through API. Read in greater details below
 
-_In CLI examples we don't pass AWS credentials, you should do it accordingly to your practices. We recommedn to checkout [@apr/ssts](https://www.npmjs.com/package/@apr/ssts) that simplify working with Bastion account approach and MFA._
+_In CLI examples we don't pass AWS credentials, you should do it accordingly to your practices. We recommend to check out [@apr/ssts](https://www.npmjs.com/package/@apr/ssts) that simplify working with Bastion account approach and MFA._
 
 
 ## Access to DV360 API
@@ -134,13 +134,13 @@ _You can use existing Google Cloud Application, however it is recommended to not
 
 In order to create new application [using the setup tool](https://console.developers.google.com/start/api?id=displayvideo.googleapis.com,doubleclickbidmanager&credential=client_key).
 
- Choose to create new application, accept Google Terms and Conditions and continue to the next Screen.
+Choose to create new application, accept Google Terms and Conditions and continue to the next Screen.
 
 ![](docs/create_app_step1.png)![](docs/create_app_step2.png)
 
-You may want to rename the project. Also you will be able to do it later.
+You may want to rename the project. Also, you will be able to do it later.
 
-Now you need to go to Credentials screen. 
+Now you need to go to Credentials screen.
 
 ![](docs/create_app_step3.png)
 
@@ -168,11 +168,11 @@ Make sure, file is downloaded. You must store this file securely and protect aga
 
 ![](docs/create_app_step10.png)
 
-Now you need to create the SSM Parameter. Recommended name is `dv360proxy.credentials`, however you can enter you any if you have organization policies regarding naming. You can do in [AWS Console / SSM / Create Parameter](https://console.aws.amazon.com/systems-manager/parameters/create)  page. **Doublecheck the region, so it is created in the correct one**
+Now you need to create the SSM Parameter. Recommended name is `dv360proxy.credentials`, however you can enter you any if you have organization policies regarding naming. You can do in [AWS Console / SSM / Create Parameter](https://console.aws.amazon.com/systems-manager/parameters/create)  page. **Double-check the region, so it is created in the correct one**
 
 ![](docs/create_app_step11.png)
 
-ernatively, you can rename downloaded file to `credentials.json` and use AWS CLI to upload credentials
+Alternatively, you can rename downloaded file to `credentials.json` and use AWS CLI to upload credentials
 
 ```bash
 aws ssm put-parameter --name "dv360proxy.credentials"  --value file://credentials.json --type "SecureString" --overwrite --region=us-east-1
@@ -226,34 +226,34 @@ The second piece of the configuration is non-secure JSON document that describes
 }
 ```
 
-It can be human-readed as following:
+It can be human-read as following:
 * Advertiser 456 belonging to partner ID 1234 can be queried, except Cost and Fee data
 * Advertiser 789 belonging to partner ID 1234 can be queried without limits
 * Advertiser 987 belonging to partner ID 2345 can be queried, except Cost, Fee and Video metrics (e.g. `METRIC_RICH_MEDIA_VIDEO_COMPLETIONS`)
 
 > Notes:
-> * Metrics validated against blacklist using `indeOf()`
-> One query may request multiple partners, advertisers. If any of the checks got failed - entire request will be refused.
+> * Metrics validated against blacklist using `indexOf()`
+> * One query may request multiple partners, advertisers. If any of the checks got failed - entire request will be refused.
 
 In order to help with JSON file creation, you can find `configurator.html` in the repo that provides UI for file generation.
 
 ![](docs/configure_step1.png)
 
-Now you need to create the SSM Parameter. Recommended name is `dv360proxy.config`, however you can enter you any if you have organization policies regarding naming. You can do in [AWS Console / SSM / Create Parameter](https://console.aws.amazon.com/systems-manager/parameters/create)  page. **Doublecheck the region, so it is created in the correct one**
+Now you need to create the SSM Parameter. Recommended name is `dv360proxy.config`, however you can enter you any if you have organization policies regarding naming. You can do in [AWS Console / SSM / Create Parameter](https://console.aws.amazon.com/systems-manager/parameters/create)  page. **Double-check the region, so it is created in the correct one**
 
 ![](docs/configure_step2.png)
 
-ernativelym you can do it using AWS CLI. Save config as `config.json`. You can use "Donwload" button to save it from the UI.
+Alternatively you can do it using AWS CLI. Save config as `config.json`. You can use "Download" button to save it from the UI.
 
 
 ```bash
 aws ssm put-parameter --name "dv360proxy.config"  --value file://config.json --type "String" --overwrite --region=us-east-1
 ```
 
-# Deploymnet
+# Deployment
 
 
-Prior to the deployment you need to clone the repository and install npm depdendencies in `dv360proxy` folder.
+Prior to the deployment you need to clone the repository and install npm dependencies in `dv360proxy` folder.
 
 ```bash
 cd dv360proxy
@@ -263,7 +263,7 @@ cd ..
 
 Now you are ready for the deployment.
 
-Idea of proxy to let another AWS to call the Lambda, so you will need AWS Account ID on your fingertips. It is required in both deployment modes. In case you don't need to give external access - use your AWS Account ID.
+The idea of the proxy to let another AWS Lambda call the Lambda, so you will need AWS Account ID on your fingertips. It is required in both deployment modes. In case you don't need to give external access - use your AWS Account ID.
 
 ## Serverless Application Model
 
@@ -275,7 +275,7 @@ First time you deploy, you can use guided mode
 sam deploy --guided
 ```
 
-ernatively, you can pass all arguments
+Alternatively, you can pass all arguments
 
 ```bash
 sam deploy  --stack-name dv360proxy --parameter-overrides "ApiCredentialsParameterName=\"dv360proxy.credentials\" ConfigParameterName=\"dv360proxy.config\" CallerAccountId=\"111111\"" --capabilities CAPABILITY_IAM --region us-east-1
@@ -283,7 +283,7 @@ sam deploy  --stack-name dv360proxy --parameter-overrides "ApiCredentialsParamet
 
 where `111111` is AWS account ID allowed to invoke the function.
 
-You will see Lambda function ARN after the deployment. You will need it. Also you will be able to find this in AWS Console.
+You will see Lambda function ARN after the deployment. You will need it. Also, you will be able to find this in AWS Console.
 
 ## Terraform
 
@@ -295,7 +295,7 @@ terraform plan --var invocation_account_ids=[11111,2222]
 terraform apply --var invocation_account_ids=[11111,2222]
 ```
 
-You will see Lambda function ARN after the deployment. You will need it. Also you will be able to find this in AWS Console.
+You will see Lambda function ARN after the deployment. You will need it. Also, you will be able to find this in AWS Console.
 
 Following parameters can be passed additionally to terraform:
 
@@ -309,11 +309,11 @@ Following parameters can be passed additionally to terraform:
 
 There is special operation that can test API connection and Partner/Advertiser configuration - `ping`.
 
-Invoke Lamda function with `events/ping.json` as input, this will verify the connection and result will be written in `out.json` file.
+Invoke Lambda function with `events/ping.json` as input, this will verify the connection and result will be written in `out.json` file.
 
 **Examples**
 
-Valid confuguration:
+Valid configuration:
 ```json
 {
     "ok": true,
@@ -330,7 +330,7 @@ Valid confuguration:
 }
 ```
 
-Unaccessible advertiser configured:
+Inaccessible advertiser configured:
 ```json
 {
     "ok": false,
@@ -368,7 +368,7 @@ Access not configured
 
 ## Updates
 
-Given that DV360 APIs are evolving, this proxy can be updated and new operations may be introduces. Upgrade procedure is the same as installation. You don't need to reconfigure, just re-upload Lambda using SAM or Terraform.
+Given that DV360 APIs are evolving, this proxy can be updated and new operations may be introduced. Upgrade procedure is the same as installation. You don't need to reconfigure, just re-upload Lambda using SAM or Terraform.
 
 
 
@@ -376,7 +376,7 @@ Given that DV360 APIs are evolving, this proxy can be updated and new operations
 
 There is not built-it throttling or rate-limits in the proxy. These limits can be managed in Google Developer Console.
 
-DV360Proxy has embed retry polcieis on retrieable API errors with exponential backoff.
+DV360Proxy has embed retry policies on retryable API errors with exponential backoff.
 
 
 ![Configure quotas](docs/configure_quotas.png)
