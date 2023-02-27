@@ -1,6 +1,6 @@
 {
   "name": "dv360proxy",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Allows external companies to access DV360 reports without getting access and with granular control of advertisers and fields allowed to access",
   "homepage": "https://github.com/audienceproject/dv360proxy",
   "main": "app.js",
