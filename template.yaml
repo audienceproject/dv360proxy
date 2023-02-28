@@ -29,7 +29,7 @@ Resources:
     Properties:
       CodeUri: dv360proxy/
       Handler: app.lambdaHandler
-      Runtime: nodejs12.x
+      Runtime: nodejs16.x
       Timeout: 300
       Policies:
         - SSMParameterReadPolicy:

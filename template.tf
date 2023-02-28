@@ -40,7 +40,7 @@ resource "aws_lambda_function" "function" {
   filename         = data.archive_file.lambda_package.output_path
   handler          = "app.lambdaHandler"
 
-  runtime          = "nodejs12.x"
+  runtime          = "nodejs16.x"
 
   timeout          = 300
 
